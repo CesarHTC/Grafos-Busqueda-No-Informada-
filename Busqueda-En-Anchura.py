@@ -1,42 +1,62 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from collections import deque
 
-# Definimos un diccionario para asignar colores a valores numéricos únicos
-color_map = {'rojo': 1, 'azul': 2, 'verde': 3, 'amarillo': 4}
+class Arbol:
+    def __init__(self, elemento):
+        self.hijos = []
+        self.elemento = elemento
 
-# Creamos el grafo
-G = nx.Graph()
+def buscarSubarbol(arbol, elemento):
+    if arbol.elemento == elemento:
+        return arbol
+    for subarbol in arbol.hijos:
+        arbolBuscado = buscarSubarbol(subarbol, elemento)
+        if (arbolBuscado != None):
+            return arbolBuscado
+    return None         
 
-# Añadimos nodos al grafo con atributos adicionales
-G.add_node(1, label="Nodo 1", color="rojo")
-G.add_node(2, label="Nodo 2", color="azul")
-G.add_node(3, label="Nodo 3", color="verde")
-G.add_node(4, label="Nodo 4", color="rojo")
-G.add_node(5, label="Nodo 5", color="amarillo")
-G.add_node(6, label="Nodo 6", color="rojo")
+def agregarElemento(arbol, elemento, elementoPadre):
+    subarbol = buscarSubarbol(arbol, elementoPadre);
+    subarbol.hijos.append(Arbol(elemento))
 
-# Añadimos aristas al grafo
-G.add_edges_from([(1, 2), (1, 3), (2, 4), (2, 5), (3, 5), (4, 6), (5, 6)])
 
-# Imprimimos los nodos y las aristas
-print("Nodos del grafo:")
-for n in G.nodes:
-    print(n, G.nodes[n])
+def profundidad(arbol):
+    if len(arbol.hijos) == 0: 
+        return 1
+    return 1 + max(map(profundidad,arbol.hijos)) 
+def grado(arbol):
+    return max(map(grado, arbol.hijos) + [len(arbol.hijos)])
 
-print("Aristas del grafo:", G.edges)
+abuelo = "A"
+Rama_B = "B"
+Rama_C = "C"
+Rama_D = "D"
+Hoja_B_E = "E"
+Hoja_B_F = "F"
+Hoja_D_G = "G"
+Hoja_G_J = "J"
+Hoja_D_H = "H"
+Hoja_H_I = "I"
+arbol = Arbol(abuelo)
+agregarElemento(arbol, Rama_B, abuelo)
+agregarElemento(arbol, Rama_C, abuelo)
+agregarElemento(arbol, Rama_D, abuelo)
+agregarElemento(arbol, Hoja_B_E, Rama_B)
+agregarElemento(arbol, Hoja_B_F, Rama_B)
+agregarElemento(arbol, Hoja_D_G, Rama_D)
+agregarElemento(arbol,Hoja_G_J,Hoja_D_G)
+agregarElemento(arbol, Hoja_D_H, Rama_D)
+agregarElemento(arbol,Hoja_H_I,Hoja_D_H)
 
-# Realizamos la búsqueda en anchura
-bfs_tree = nx.bfs_tree(G, 1)
-print("Resultado de la búsqueda en anchura:", list(bfs_tree))
+def ejecutarAnchoPrimero(arbol, funcion, cola = deque()):
+    funcion(arbol.elemento)
+    if (len(arbol.hijos) > 0):
+        cola.extend(arbol.hijos)
+    if (len(cola) != 0):
+        ejecutarAnchoPrimero(cola.popleft(), funcion, cola)
+          
 
-# Dibujamos el grafo
-pos = nx.spring_layout(G)
-node_colors = [color_map[G.nodes[n]['color']] for n in G.nodes]
-nx.draw_networkx_nodes(G, pos, node_color=node_colors)
-nx.draw_networkx_edges(G, pos)
-nx.draw_networkx_labels(G, pos, labels={n:G.nodes[n]['label'] for n in G.nodes})
-nx.draw_networkx_edges(bfs_tree, pos, edge_color='r', alpha=0.5)
-
-# Mostramos el grafo
-plt.axis('off')
-plt.show()
+def printElement(element):
+    print(element) 
+ejecutarAnchoPrimero(arbol, printElement)
