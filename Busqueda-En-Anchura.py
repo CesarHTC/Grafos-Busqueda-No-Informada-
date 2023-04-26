@@ -58,5 +58,7 @@ def ejecutarAnchoPrimero(arbol, funcion, cola = deque()):
           
 
 def printElement(element):
-    print(element) 
+    print(element)
+
 ejecutarAnchoPrimero(arbol, printElement)
+
